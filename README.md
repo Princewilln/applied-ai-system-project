@@ -71,6 +71,12 @@ This design makes the system easy to inspect, easy to explain, and easy to test.
 
 ---
 
+## Portfolio Artifact
+
+GitHub repository: https://github.com/Princewilln/applied-ai-system-project
+
+This project says that I like building AI systems that are transparent, testable, and grounded in clear behavior rather than just impressive-looking output. I am especially interested in small applied systems where the scoring rules are understandable, the reliability checks are visible, and the evaluation story is easy to inspect. In this project, I combined a content-based recommender, a lightweight validation guardrail, and a compact confidence-style summary so the system can demonstrate both usefulness and safety-minded design.
+
 ## Sample Interactions
 
 The system is designed to take a small user profile and return explainable recommendations. The examples below show how the same workflow responds to different tastes.
@@ -166,6 +172,8 @@ This design makes the system easier to inspect, explain, and evaluate, but it al
 ---
 
 ## Testing Summary
+
+Test summary (parseable): {"total_tests": 6, "passed": 6, "failed": 0, "demo_profiles": 4, "reliability_summary": {"valid": true, "top_song": "Sunrise City", "confidence": 0.893}}
 
 The project was tested in two complementary ways. First, the automated unit tests verify that the recommender still returns a sensible ranking and explanation for the baseline user profile. Second, the CLI demo exercises several sample profiles and confirms that the output stays readable and explainable in a real end-to-end run.
 
