@@ -189,6 +189,35 @@ def recommend_songs(
     return scored[:k]
 
 
+def validate_user_profile(user: Any) -> Tuple[bool, List[str]]:
+    """Validate a user profile and return a clear issue list when inputs are unsafe."""
+    prefs = _coerce_user_prefs(user)
+    issues: List[str] = []
+
+    favorite_genre = str(prefs.get("favorite_genre", "")).strip()
+    favorite_mood = str(prefs.get("favorite_mood", "")).strip()
+    target_energy = prefs.get("target_energy")
+    likes_acoustic = prefs.get("likes_acoustic")
+
+    if not favorite_genre:
+        issues.append("favorite_genre must be provided")
+    if not favorite_mood:
+        issues.append("favorite_mood must be provided")
+
+    try:
+        target_energy_value = float(target_energy)
+    except (TypeError, ValueError):
+        issues.append("target_energy must be a numeric value between 0.0 and 1.0")
+    else:
+        if not 0.0 <= target_energy_value <= 1.0:
+            issues.append("target_energy must be between 0.0 and 1.0")
+
+    if likes_acoustic not in (True, False):
+        issues.append("likes_acoustic must be a boolean value")
+
+    return len(issues) == 0, issues
+
+
 def _profile_to_dict(user: UserProfile) -> Dict[str, Any]:
     return {
         "favorite_genre": user.favorite_genre,
