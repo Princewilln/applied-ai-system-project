@@ -33,13 +33,15 @@ This matters because even a small recommendation system can look convincing whil
 
 ## System Architecture
 
-The architecture diagram is maintained in [diagrams/architecture.mmd](diagrams/architecture.mmd). The current implementation follows this flow:
+The architecture diagram is maintained in [diagrams/architecture.mmd](diagrams/architecture.mmd) and is the Mermaid source file for the system design view. The current implementation follows this flow:
 
 1. A user profile is supplied by the caller.
 2. The catalog is loaded from the CSV dataset.
 3. The recommender scores each song using the weighted recipe.
 4. A reliability layer validates input constraints and summarizes the result.
 5. The ranked list and explanation are returned to the user.
+
+This diagram is the authoritative design artifact for the project’s end-to-end data flow and testing handoff.
 
 ---
 
