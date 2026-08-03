@@ -11,7 +11,7 @@ You will implement the functions in recommender.py:
 
 from typing import Any, Dict, List
 
-from src.recommender import load_songs, recommend_songs
+from src.recommender import evaluate_profile, load_songs, recommend_songs
 
 
 def format_table(recommendations: List[tuple], k: int = 5) -> str:
@@ -95,6 +95,7 @@ def print_profile_results(
     recommendations = recommend_songs(
         user_prefs, songs, k=k, use_experiment=use_experiment
     )
+    summary = evaluate_profile(user_prefs, songs)
 
     print(f"\nProfile: {profile_name}")
     print(
@@ -103,6 +104,10 @@ def print_profile_results(
         f"favorite_mood={user_prefs.get('favorite_mood')}, "
         f"target_energy={user_prefs.get('target_energy')}, "
         f"likes_acoustic={user_prefs.get('likes_acoustic')}"
+    )
+    print(
+        "Reliability summary: "
+        f"valid={summary['valid']}, top_song={summary['top_song']}, confidence={summary['confidence']}"
     )
     print(f"\nTop {k} recommendations:\n")
     print(format_table(recommendations, k=k))
