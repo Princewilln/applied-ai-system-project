@@ -156,6 +156,14 @@ The tests validate the baseline ranking behavior and confirm that the recommende
 
 ---
 
+## Design Decisions
+
+This project uses a transparent, content-based scoring recipe rather than a larger black-box model because the goal is to make recommenders understandable. Each score is built from a small set of intuitive features: genre, mood, energy, valence, and acousticness.
+
+That design makes the system easier to inspect, explain, and evaluate, but it also limits personalization. The trade-off is clarity and reliability over deeper contextual understanding, which is appropriate for a small classroom-style applied AI system.
+
+---
+
 ## Verified End-to-End Example
 
 The following output was produced by running the current demo and is representative of the actual end-to-end workflow.
