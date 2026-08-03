@@ -3,7 +3,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.recommender import Song, UserProfile, Recommender, score_song
+from src.recommender import (
+    Song,
+    UserProfile,
+    Recommender,
+    score_song,
+    validate_user_profile,
+)
 
 
 def make_small_recommender() -> Recommender:
@@ -87,3 +93,17 @@ def test_score_song_uses_weighted_recipe_for_genre_mood_and_energy():
     assert score >= 3.0
     assert "genre match (+2.0)" in reasons
     assert "mood match (+1.0)" in reasons
+
+
+def test_validate_user_profile_rejects_out_of_range_inputs():
+    user = UserProfile(
+        favorite_genre="pop",
+        favorite_mood="happy",
+        target_energy=1.5,
+        likes_acoustic=False,
+    )
+
+    is_valid, issues = validate_user_profile(user)
+
+    assert is_valid is False
+    assert any("target_energy" in issue for issue in issues)
