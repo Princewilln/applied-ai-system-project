@@ -218,6 +218,36 @@ def validate_user_profile(user: Any) -> Tuple[bool, List[str]]:
     return len(issues) == 0, issues
 
 
+def evaluate_profile(user: Any, songs: List[Any]) -> Dict[str, Any]:
+    """Return a minimal reliability summary for a user profile and catalog."""
+    user_prefs = _coerce_user_prefs(user)
+    is_valid, issues = validate_user_profile(user_prefs)
+
+    if not is_valid:
+        return {
+            "valid": False,
+            "issues": issues,
+            "top_song": None,
+            "confidence": 0.0,
+        }
+
+    scored = []
+    for song in songs:
+        score, _ = score_song(user_prefs, _coerce_song(song))
+        scored.append((song.title if isinstance(song, Song) else song["title"], score))
+
+    scored.sort(key=lambda item: item[1], reverse=True)
+    top_song = scored[0][0] if scored else None
+    confidence = min(1.0, max(0.0, scored[0][1] / 5.0)) if scored else 0.0
+
+    return {
+        "valid": True,
+        "issues": [],
+        "top_song": top_song,
+        "confidence": round(confidence, 4),
+    }
+
+
 def _profile_to_dict(user: UserProfile) -> Dict[str, Any]:
     return {
         "favorite_genre": user.favorite_genre,
