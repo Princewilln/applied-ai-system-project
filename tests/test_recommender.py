@@ -7,6 +7,7 @@ from src.recommender import (
     Song,
     UserProfile,
     Recommender,
+    evaluate_profile,
     score_song,
     validate_user_profile,
 )
@@ -107,3 +108,19 @@ def test_validate_user_profile_rejects_out_of_range_inputs():
 
     assert is_valid is False
     assert any("target_energy" in issue for issue in issues)
+
+
+def test_evaluate_profile_returns_summary_for_sample_input():
+    user = UserProfile(
+        favorite_genre="pop",
+        favorite_mood="happy",
+        target_energy=0.8,
+        likes_acoustic=False,
+    )
+    rec = make_small_recommender()
+
+    result = evaluate_profile(user, rec.songs)
+
+    assert result["valid"] is True
+    assert result["top_song"] == "Test Pop Track"
+    assert result["confidence"] >= 0.5
