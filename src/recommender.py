@@ -174,7 +174,12 @@ def recommend_songs(
     k: int = 5,
     use_experiment: bool = False,
 ) -> List[Tuple[Dict[str, Any], float, str]]:
-    """Rank songs by score and return the top-k recommendations with explanations."""
+    """Rank songs by score and return the top-k recommendations with explanations.
+
+    The score ordering remains the primary signal, but the final top-k slice now
+    prefers a mix of artists so the output does not collapse into repeated songs
+    from the same performer when multiple near-tied matches exist.
+    """
     scored = [
         (song, score, "; ".join(reasons))
         for song in songs
@@ -182,11 +187,30 @@ def recommend_songs(
             score_song(user_prefs, song, use_experiment=use_experiment)
         ]
     ]
-    # sort() mutates the list in place and is useful when you want to reorder the
-    # existing list directly; sorted() returns a new sorted list and is often more
-    # convenient when you want to keep the original order intact.
     scored.sort(key=lambda item: item[1], reverse=True)
-    return scored[:k]
+
+    selected: List[Tuple[Dict[str, Any], float, str]] = []
+    seen_artists = set()
+
+    for song, score, explanation in scored:
+        artist = str(song.get("artist", "")).strip()
+        if artist and artist in seen_artists:
+            continue
+        selected.append((song, score, explanation))
+        if artist:
+            seen_artists.add(artist)
+        if len(selected) == k:
+            break
+
+    if len(selected) < k:
+        for song, score, explanation in scored:
+            if any(existing[0].get("id") == song.get("id") for existing in selected):
+                continue
+            selected.append((song, score, explanation))
+            if len(selected) == k:
+                break
+
+    return selected
 
 
 def validate_user_profile(user: Any) -> Tuple[bool, List[str]]:

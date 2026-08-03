@@ -8,6 +8,7 @@ from src.recommender import (
     UserProfile,
     Recommender,
     evaluate_profile,
+    recommend_songs,
     score_song,
     validate_user_profile,
 )
@@ -108,6 +109,66 @@ def test_validate_user_profile_rejects_out_of_range_inputs():
 
     assert is_valid is False
     assert any("target_energy" in issue for issue in issues)
+
+
+def test_recommend_songs_promotes_artist_diversity_in_top_results():
+    user = UserProfile(
+        favorite_genre="pop",
+        favorite_mood="happy",
+        target_energy=0.8,
+        likes_acoustic=False,
+    )
+    songs = [
+        {
+            "id": 1,
+            "title": "Track A",
+            "artist": "Artist One",
+            "genre": "pop",
+            "mood": "happy",
+            "energy": 0.8,
+            "tempo_bpm": 120,
+            "valence": 0.9,
+            "danceability": 0.8,
+            "acousticness": 0.2,
+        },
+        {
+            "id": 2,
+            "title": "Track B",
+            "artist": "Artist One",
+            "genre": "pop",
+            "mood": "happy",
+            "energy": 0.8,
+            "tempo_bpm": 120,
+            "valence": 0.9,
+            "danceability": 0.8,
+            "acousticness": 0.2,
+        },
+        {
+            "id": 3,
+            "title": "Track C",
+            "artist": "Artist Two",
+            "genre": "pop",
+            "mood": "happy",
+            "energy": 0.8,
+            "tempo_bpm": 118,
+            "valence": 0.9,
+            "danceability": 0.8,
+            "acousticness": 0.2,
+        },
+    ]
+
+    results = recommend_songs(
+        {
+            "favorite_genre": user.favorite_genre,
+            "favorite_mood": user.favorite_mood,
+            "target_energy": user.target_energy,
+            "likes_acoustic": user.likes_acoustic,
+        },
+        songs,
+        k=2,
+    )
+
+    assert len({song["artist"] for song, _, _ in results}) == 2
 
 
 def test_evaluate_profile_returns_summary_for_sample_input():
