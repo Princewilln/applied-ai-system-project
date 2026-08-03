@@ -70,6 +70,59 @@ This design makes the system easy to inspect, easy to explain, and easy to test.
 
 ---
 
+## Sample Interactions
+
+The system is designed to take a small user profile and return explainable recommendations. The examples below show how the same workflow responds to different tastes.
+
+### Example 1 — High-Energy Pop
+
+Input profile:
+
+- favorite genre: `pop`
+- favorite mood: `happy`
+- target energy: `0.8`
+- likes acoustic: `False`
+
+Observed output:
+
+- `Sunrise City by Neon Echo` ranked first
+- explanation included genre and mood matches plus a strong energy similarity score
+- this is the clearest “happy, energetic pop” recommendation pattern
+
+### Example 2 — Chill Lofi
+
+Input profile:
+
+- favorite genre: `lofi`
+- favorite mood: `chill`
+- target energy: `0.35`
+- likes acoustic: `True`
+
+Observed output:
+
+- `Library Rain by Paper Lanterns` ranked first
+- the top result reflected the user’s low-energy acoustic target very closely
+- the output shifted toward quieter, calmer music that matched the profile
+
+### Example 3 — Deep Intense Rock
+
+Input profile:
+
+- favorite genre: `rock`
+- favorite mood: `intense`
+- target energy: `0.9`
+- likes acoustic: `False`
+
+Observed output:
+
+- `Storm Runner by Voltline` ranked first
+- the explanation emphasized strong energy similarity and genre-level alignment
+- the system clearly shifted from the earlier calm profile toward a more forceful and high-energy style
+
+These examples demonstrate that the system responds consistently to different user intentions and that the score explanations remain readable.
+
+---
+
 ## Setup Instructions
 
 ### 1. Create and activate a virtual environment
