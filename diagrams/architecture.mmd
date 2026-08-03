@@ -3,7 +3,8 @@ flowchart LR
     B --> C[Song Catalog Loader]
     C --> D[Recommender Engine]
     D --> E[Score + Explanation Generator]
-    E --> F[Top Recommendations Output]
-    B --> G[Reliability / Guardrail Check]
-    G --> H[Human Review or Test Validation]
-    F --> H
+    E --> F[Artist Diversity Guardrail]
+    F --> G[Top Recommendations Output]
+    B --> H[Reliability / Guardrail Check]
+    H --> I[Human Review or Test Validation]
+    G --> I

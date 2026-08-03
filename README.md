@@ -24,8 +24,9 @@ The resulting system is an end-to-end recommendation workflow that demonstrates:
 - explanation generation for each ranked result
 - a reliability check for profile validation
 - a repeatable evaluation summary for sample inputs
+- a small diversity-aware ranking safeguard that prefers a wider spread of artists in the top-k output when several songs are near-tied
 
-The new AI feature added here is a reliability mechanism: the system now validates the incoming user profile before ranking songs, and it can also return a small evaluation summary that reports whether the profile is valid, which song ranked highest, and a confidence-style score for that recommendation. The CLI demo now surfaces this reliability summary directly in the terminal output, which makes the guardrail visible to both developers and reviewers.
+The new AI feature added here is a reliability mechanism: the system now validates the incoming user profile before ranking songs, and it can also return a small evaluation summary that reports whether the profile is valid, which song ranked highest, and a confidence-style score for that recommendation. The CLI demo now surfaces this reliability summary directly in the terminal output, which makes the guardrail visible to both developers and reviewers. In addition, the final recommendation slice is tuned to avoid overloading the top results with multiple songs from the same artist, which makes the output more varied and less repetitive.
 
 This matters because even a small recommendation system can look convincing while silently accepting bad inputs or over-weighting one signal. The guardrail layer helps reduce that risk by catching invalid `target_energy` values and other profile mismatches early, then summarizing the result in a compact reliability view that appears in the end-to-end demo.
 
@@ -160,7 +161,7 @@ The tests validate the baseline ranking behavior and confirm that the recommende
 
 This project uses a transparent, content-based scoring recipe rather than a larger black-box model because the goal is to make recommenders understandable. Each score is built from a small set of intuitive features: genre, mood, energy, valence, and acousticness.
 
-That design makes the system easier to inspect, explain, and evaluate, but it also limits personalization. The trade-off is clarity and reliability over deeper contextual understanding, which is appropriate for a small classroom-style applied AI system.
+This design makes the system easier to inspect, explain, and evaluate, but it also limits personalization. The trade-off is clarity and reliability over deeper contextual understanding, which is appropriate for a small classroom-style applied AI system. One practical enhancement is the diversity-aware ranking safeguard, which still preserves the score ranking but avoids presenting a near-identical artist block at the top of the recommendation list.
 
 ---
 
@@ -173,6 +174,7 @@ What worked well:
 - the ranking logic remained stable under the baseline profile tests
 - the CLI output clearly prints a ranked table and explanation text
 - the new reliability summary reports valid profile state and a confidence-style value in the demo output
+- the top-k list now keeps the recommendation score logic intact while reducing artist repetition in the final slice
 
 What did not work as well:
 
@@ -206,10 +208,10 @@ Rank | Song                            | Score | Why
 2    | Rooftop Lights by Indigo Parade | 3.38  | genre mismatch; mood match (+1.0); energy similarity (+1.92): close to target 0.80; valence aligned with mood; acousticness bonus (+0.21): not overly bright
 3    | Gym Hero by Max Pulse           | 3.19  | genre match (+1.0); mood mismatch; energy similarity (+1.74): close to target 0.80; valence aligned with mood; acousticness bonus (+0.21): not overly bright
 4    | Velvet Static by Nyra Lane      | 2.33  | genre mismatch; mood mismatch; energy similarity (+1.88): close to target 0.80; valence aligned with mood; acousticness bonus (+0.22): not overly bright
-5    | Night Drive Loop by Neon Echo   | 2.32  | genre mismatch; mood mismatch; energy similarity (+1.90): close to target 0.80; valence aligned with mood; acousticness bonus (+0.24): not overly bright
+5    | Neon Skyline by Aria Vale       | 2.30  | genre mismatch; mood mismatch; energy similarity (+1.84): close to target 0.80; valence aligned with mood; acousticness bonus (+0.23): not overly bright
 ```
 
-This shows the full workflow working end-to-end: input profile → validate profile → load songs → rank songs → return explainable outputs with a visible reliability summary.
+This shows the full workflow working end-to-end: input profile → validate profile → load songs → rank songs → apply a small diversity safeguard to the top-k slice → return explainable outputs with a visible reliability summary.
 
 ---
 
