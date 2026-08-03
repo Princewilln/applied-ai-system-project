@@ -25,9 +25,9 @@ The resulting system is an end-to-end recommendation workflow that demonstrates:
 - a reliability check for profile validation
 - a repeatable evaluation summary for sample inputs
 
-The new AI feature added here is a reliability mechanism: the system now validates the incoming user profile before ranking songs and returns explicit issues when the profile is malformed or out of range. This makes the code more trustworthy because bad inputs no longer pass silently through the recommendation pipeline.
+The new AI feature added here is a reliability mechanism: the system now validates the incoming user profile before ranking songs, and it can also return a small evaluation summary that reports whether the profile is valid, which song ranked highest, and a confidence-style score for that recommendation. This makes the code more trustworthy because bad inputs no longer pass silently through the recommendation pipeline.
 
-This matters because even a small recommendation system can look convincing while silently accepting bad inputs or over-weighting one signal. The guardrail layer helps reduce that risk by catching invalid `target_energy` values and other profile mismatches early.
+This matters because even a small recommendation system can look convincing while silently accepting bad inputs or over-weighting one signal. The guardrail layer helps reduce that risk by catching invalid `target_energy` values and other profile mismatches early, then summarizing the result in a compact reliability view.
 
 ---
 
@@ -192,9 +192,9 @@ This shows the full workflow working end-to-end: input profile â†’ load songs â†
 
 ## Reliability and Guardrail Behavior
 
-The reliability layer is a lightweight input-validation guardrail.
+The reliability layer is a lightweight input-validation guardrail plus a profile evaluation summary.
 
-A valid profile keeps the normal recommendation workflow intact, while an invalid profile is rejected with a clear issue list that explains why the system refused to continue.
+A valid profile keeps the normal recommendation workflow intact, while an invalid profile is rejected with a clear issue list that explains why the system refused to continue. The summary also reports a simple confidence signal for the top-ranked recommendation so the reliability story is visible even in the code-level API.
 
 ### Example guardrail result
 
