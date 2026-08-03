@@ -164,6 +164,28 @@ That design makes the system easier to inspect, explain, and evaluate, but it al
 
 ---
 
+## Testing Summary
+
+The project was tested in two complementary ways. First, the automated unit tests verify that the recommender still returns a sensible ranking and explanation for the baseline user profile. Second, the CLI demo exercises several sample profiles and confirms that the output stays readable and explainable in a real end-to-end run.
+
+What worked well:
+
+- the ranking logic remained stable under the baseline profile tests
+- the CLI output clearly prints a ranked table and explanation text
+- the new reliability summary reports valid profile state and a confidence-style value in the demo output
+
+What did not work as well:
+
+- the current scoring model is intentionally narrow and cannot capture deeper music context beyond the provided features
+- profile strength can be misleading when a single signal such as energy becomes too dominant
+
+What this taught us:
+
+- a small, interpretable recommender can still be useful for demonstrating AI behavior clearly
+- reliability is improved by validating inputs early and making the model’s output more inspectable
+
+---
+
 ## Verified End-to-End Example
 
 The following output was produced by running the current demo and is representative of the actual end-to-end workflow.
