@@ -144,11 +144,15 @@ pip install -r requirements.txt
 python -m src.main
 ```
 
+This command loads the song catalog, applies the scoring recipe to each sample profile, and prints a readable ranked recommendation table with matching explanations.
+
 ### 4. Run the test suite
 
 ```bash
 pytest
 ```
+
+The tests validate the baseline ranking behavior and confirm that the recommender still responds sensibly to the core profile-scoring rules.
 
 ---
 
