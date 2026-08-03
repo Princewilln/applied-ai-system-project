@@ -196,6 +196,7 @@ Running experiment: doubled energy weight and halved genre weight.
 
 Profile: High-Energy Pop
 User prefs: favorite_genre=pop, favorite_mood=happy, target_energy=0.8, likes_acoustic=False
+Reliability summary: valid=True, top_song=Sunrise City, confidence=0.893
 
 Top 5 recommendations:
 
@@ -208,7 +209,7 @@ Rank | Song                            | Score | Why
 5    | Night Drive Loop by Neon Echo   | 2.32  | genre mismatch; mood mismatch; energy similarity (+1.90): close to target 0.80; valence aligned with mood; acousticness bonus (+0.24): not overly bright
 ```
 
-This shows the full workflow working end-to-end: input profile → load songs → rank songs → return explainable outputs.
+This shows the full workflow working end-to-end: input profile → validate profile → load songs → rank songs → return explainable outputs with a visible reliability summary.
 
 ---
 
