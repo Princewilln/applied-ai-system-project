@@ -1,0 +1,8 @@
+flowchart LR
+    A[User Profile] --> B[Recommender Engine]
+    C[Song Catalog] --> B
+    D[Retrieval Layer / Docs] --> E[Explanation & Validation]
+    B --> F[Top Recommendations]
+    F --> E
+    E --> G[Guardrails / Reliability Check]
+    G --> H[Final Output]

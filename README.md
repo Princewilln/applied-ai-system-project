@@ -1,222 +1,183 @@
-# 🎵 Music Recommender Simulation
+# 🎵 Applied AI System: Music Recommender Simulation
 
-## Project Summary
+## Project Identity and Original Scope
 
-In this project you will build and explain a small music recommender system.
+This project extends a prior classroom-style music recommender prototype into a small applied AI system. The base project’s original scope was to represent a song catalog and a user taste profile, then use a content-based ranking rule to recommend songs based on clearly interpretable musical attributes.
 
-Your goal is to:
+The original system goal was simple and useful:
 
-- Represent songs and a user "taste profile" as data
-- Design a scoring rule that turns that data into recommendations
-- Evaluate what your system gets right and wrong
-- Reflect on how this mirrors real world AI recommenders
+- model songs as structured records
+- represent a user’s preferences in a compact profile
+- score each song against that profile
+- explain why a recommendation was ranked highly
 
-This project builds a small music recommender that simulates how a streaming service might connect a user’s taste profile to songs in a catalog. The system uses a simple content-based approach: it looks at song features like genre, mood, energy, and acousticness, compares them to a user’s preferences, and ranks songs by how well they match.
-
-A small stretch feature was also added so the terminal output is easier to read: each recommendation now appears in a simple table with the score and explanation for the ranking.
+This final version keeps that original behavior but adds a stronger applied-AI framing by making the system more explainable, more testable, and more reliable through a small evaluation and guardrail layer.
 
 ---
 
-## How The System Works
+## What Makes This an Applied AI System
 
-Real recommendation systems usually combine many signals, such as what a user has listened to, what similar users enjoy, and what the content itself looks like. In this simulation, I focus on the content-based side: the recommender compares a user’s taste profile to the attributes of each song and tries to find songs that feel like the right fit. The system prioritizes clear, interpretable features such as genre, mood, energy, valence, and acousticness, because those are easy to connect to a user’s stated preferences and to a listener’s idea of a song’s "vibe".
+The resulting system is an end-to-end recommendation workflow that demonstrates:
 
-### Features used in the simulation
+- data loading from a real CSV catalog
+- rule-based scoring logic for content-based retrieval
+- explanation generation for each ranked result
+- a reliability check for profile validation
+- a repeatable evaluation summary for sample inputs
 
-- `Song` features:
-  - `genre`
-  - `mood`
-  - `energy`
-  - `tempo_bpm`
-  - `valence`
-  - `danceability`
-  - `acousticness`
+The new AI feature added here is a reliability mechanism: the system now validates the incoming user profile and produces a small evaluation summary that can tell whether the profile is usable and how stable the top-ranked recommendation appears to be.
 
-- `UserProfile` features:
-  - `favorite_genre`
-  - `favorite_mood`
-  - `target_energy`
-  - `likes_acoustic`
+This matters because even a small recommendation system can look convincing while silently accepting bad inputs or over-weighting one signal. The guardrail layer helps reduce that risk.
 
-### Implementation plan
+---
 
-The plan is to use the expanded catalog in [data/songs.csv](data/songs.csv) and a concrete example user profile with the following preferences:
+## System Architecture
 
-- favorite genre: `pop`
-- favorite mood: `happy`
-- target energy: `0.80`
-- likes acoustic: `False`
+The architecture diagram is maintained in [diagrams/architecture.mmd](diagrams/architecture.mmd). The current implementation follows this flow:
 
-The recommender will read the CSV, evaluate every song one by one, and assign a score using the finalized algorithm recipe below.
+1. A user profile is supplied by the caller.
+2. The catalog is loaded from the CSV dataset.
+3. The recommender scores each song using the weighted recipe.
+4. A reliability layer validates input constraints and summarizes the result.
+5. The ranked list and explanation are returned to the user.
 
-### Finalized algorithm recipe
+---
 
-The recommendation rule is a simple weighted recipe built from the song catalog in [data/songs.csv](data/songs.csv):
+## Recommendation Logic
+
+The scoring recipe is intentionally simple and interpretable:
 
 - +2.0 points for a genre match
 - +1.0 point for a mood match
-- +1.0 point scaled by energy similarity, where a perfect energy match earns the full point and a larger gap earns less
-- smaller bonus points for valence and acousticness to keep the system interpretable
+- +1.0 point scaled by energy similarity to the target energy
+- smaller bonus points for valence and acousticness alignment
 
-This recipe gives genre a stronger influence than mood, while still letting the energy profile steer results when two songs share the same genre and mood. In practice, a song that matches the user’s favorite genre and mood and also sits near the target energy will rise to the top of the ranking.
-
-### Expected biases
-
-This system may over-prioritize genre, which could cause it to miss some strong songs that match the user’s mood or energy very well but use a different genre. It also relies on a small handcrafted feature set, so it will not understand deeper musical context such as lyrics, artist identity, or listening history.
-
-### Visualizing the data flow
-
-A quick Mermaid flowchart showing how one song moves from the CSV into the ranked recommendation list is available in [docs/recommendation_flow.md](docs/recommendation_flow.md).
+This design makes the system easy to inspect, easy to explain, and easy to test.
 
 ---
 
-## Getting Started
+## Repository Layout
 
-### Setup
+- [src/recommender.py](src/recommender.py): score logic, profile validation, and explanation helpers
+- [src/main.py](src/main.py): CLI runner that prints demo profiles and recommendations
+- [data/songs.csv](data/songs.csv): song catalog used by the system
+- [tests/test_recommender.py](tests/test_recommender.py): regression tests for ranking behavior and reliability checks
+- [docs/recommendation_flow.md](docs/recommendation_flow.md): documentation of the recommendation pipeline
+- [model_card.md](model_card.md): model and system behavior documentation
+- [ai_interactions.md](ai_interactions.md): AI collaboration notes
 
-1. Create a virtual environment (optional but recommended):
+---
 
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate      # Mac or Linux
-   .venv\Scripts\activate         # Windows
+## Setup Instructions
 
-2. Install dependencies
+### 1. Create and activate a virtual environment
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
+
+### 2. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Run the app:
+### 3. Run the system demo
 
 ```bash
 python -m src.main
 ```
 
-### Running Tests
-
-Run the starter tests with:
+### 4. Run the test suite
 
 ```bash
 pytest
 ```
 
-You can add more tests in `tests/test_recommender.py`.
-
 ---
 
-## Sample Recommendation Output
+## Verified End-to-End Example
 
-Here is a sample result from the current recommender for a user who likes pop, happy songs, and an energetic feel near 0.8:
-
-```text
-User profile: favorite_genre=pop, favorite_mood=happy, target_energy=0.80, likes_acoustic=False
-
-Top recommendations:
-1. Sunrise City - Score: 4.46
-   Because: matched preferred genre; matched preferred mood; energy close to target 0.80; valence aligned with mood; acousticness was not overly bright
-
-2. Gym Hero - Score: 3.33
-   Because: matched preferred genre; mood did not match; energy close to target 0.80; valence aligned with mood; acousticness was not overly bright
-
-3. Rooftop Lights - Score: 2.42
-   Because: genre did not match; matched preferred mood; energy close to target 0.80; valence aligned with mood; acousticness was not overly bright
-```
-
-**Screenshot or video** *(optional)*: <!-- Insert a screenshot or demo video link here -->
-
----
-
-## Phase 4: Evaluation and Explanation
-
-I stress-tested the recommender with four deliberately different user profiles to see how the scoring logic behaves under both ordinary and edge-case conditions. Run the recommender in your terminal and paste the output into the sections below.
-
-```bash
-python -m src.main
-```
-
-### Profile 1 — High-Energy Pop
+The following output was produced by running the current demo and is representative of the actual end-to-end workflow.
 
 ```text
-(.venv) meltingtech@meltingtech:~/codepath/ai110-module3show-musicrecommendersimulation-starter$ python -m src.main
 Loaded songs: 18
+Running experiment: doubled energy weight and halved genre weight.
 
 Profile: High-Energy Pop
 User prefs: favorite_genre=pop, favorite_mood=happy, target_energy=0.8, likes_acoustic=False
 
 Top 5 recommendations:
 
-1. Sunrise City by Neon Echo
-   Score: 4.46
-   Why: genre match (+2.0); mood match (+1.0); energy similarity (+0.98): close to target0.80; valence aligned with mood; acousticness bonus (+0.24): not overly bright
+Rank | Song                            | Score | Why
+-----+---------------------------------+-------+--------------------------------
+1    | Sunrise City by Neon Echo       | 4.45  | genre match (+1.0); mood match (+1.0); energy similarity (+1.96): close to target 0.80; valence aligned with mood; acousticness bonus (+0.24): not overly bright
+2    | Rooftop Lights by Indigo Parade | 3.38  | genre mismatch; mood match (+1.0); energy similarity (+1.92): close to target 0.80; valence aligned with mood; acousticness bonus (+0.21): not overly bright
+3    | Gym Hero by Max Pulse           | 3.19  | genre match (+1.0); mood mismatch; energy similarity (+1.74): close to target 0.80; valence aligned with mood; acousticness bonus (+0.21): not overly bright
+4    | Velvet Static by Nyra Lane      | 2.33  | genre mismatch; mood mismatch; energy similarity (+1.88): close to target 0.80; valence aligned with mood; acousticness bonus (+0.22): not overly bright
+5    | Night Drive Loop by Neon Echo   | 2.32  | genre mismatch; mood mismatch; energy similarity (+1.90): close to target 0.80; valence aligned with mood; acousticness bonus (+0.24): not overly bright
+```
 
-2. Gym Hero by Max Pulse
-   Score: 3.33
-   Why: genre match (+2.0); mood mismatch; energy similarity (+0.87): close to target 0.80; valence aligned with mood; acousticness bonus (+0.21): not overly bright
+This shows the full workflow working end-to-end: input profile → load songs → rank songs → return explainable outputs.
 
-3. Rooftop Lights by Indigo Parade
-   Score: 2.42
-   Why: genre mismatch; mood match (+1.0); energy similarity (+0.96): close to target 0.80; valence aligned with mood; acousticness bonus (+0.21): not overly bright
+---
 
-4. Velvet Static by Nyra Lane
-   Score: 1.40
-   Why: genre mismatch; mood mismatch; energy similarity (+0.94): close to target 0.80; valence aligned with mood; acousticness bonus (+0.22): not overly bright
+## Reliability and Guardrail Behavior
 
-5. Neon Skyline by Aria Vale
-   Score: 1.38
-   Why: genre mismatch; mood mismatch; energy similarity (+0.92): close to target 0.80; valence aligned with mood; acousticness bonus (+0.23): not overly bright
+The reliability layer is a lightweight input validation and evaluation harness.
 
+### Example guardrail result
 
-Profile: Chill Lofi
-User prefs: favorite_genre=lofi, favorite_mood=chill, target_energy=0.35, likes_acoustic=True
+Input profile:
 
-Top 5 recommendations:
+- favorite genre: pop
+- favorite mood: happy
+- target energy: 0.8
+- likes acoustic: False
 
-1. Library Rain by Paper Lanterns
-   Score: 4.49
-   Why: genre match (+2.0); mood match (+1.0); energy similarity (+1.00): close to target0.35; valence aligned with mood; acousticness bonus (+0.24): preferred acoustic profile
+Behavior:
 
-2. Midnight Coding by LoRoom
-   Score: 4.40
-   Why: genre match (+2.0); mood match (+1.0); energy similarity (+0.93): close to target0.35; valence aligned with mood; acousticness bonus (+0.23): preferred acoustic profile
+- profile passes validation because the values are within the expected domain
+- evaluation summary confirms the profile is usable and a top song can be identified
 
-3. Focus Flow by LoRoom
-   Score: 3.44
-   Why: genre match (+2.0); mood mismatch; energy similarity (+0.95): close to target 0.35; valence aligned with mood; acousticness bonus (+0.24): preferred acoustic profile
+### Example failure case
 
-4. Spacewalk Thoughts by Orbit Bloom
-   Score: 2.39
-   Why: genre mismatch; mood match (+1.0); energy similarity (+0.93): close to target 0.35; valence aligned with mood; acousticness bonus (+0.22): preferred acoustic profile
+Input profile:
 
-5. Coffee Shop Stories by Slow Stereo
-   Score: 1.43
-   Why: genre mismatch; mood mismatch; energy similarity (+0.98): close to target 0.35; valence aligned with mood; acousticness bonus (+0.23): preferred acoustic profile
+- favorite genre: pop
+- favorite mood: happy
+- target energy: 1.5
+- likes acoustic: False
 
+Behavior:
 
-Profile: Deep Intense Rock
-User prefs: favorite_genre=rock, favorite_mood=intense, target_energy=0.9, likes_acoustic=False
+- the profile is rejected because `target_energy` is outside the valid expected range
+- the reliability layer returns a clear issue list explaining the validation problem
 
-Top 5 recommendations:
+This keeps the system from silently producing misleading recommendations from malformed or low-quality inputs.
 
-1. Storm Runner by Voltline
-   Score: 4.45
-   Why: genre match (+2.0); mood match (+1.0); energy similarity (+0.99): close to target0.90; valence aligned with mood; acousticness bonus (+0.23): not overly bright
+---
 
-2. Gym Hero by Max Pulse
-   Score: 2.34
-   Why: genre mismatch; mood match (+1.0); energy similarity (+0.97): close to target 0.90; valence aligned with mood; acousticness bonus (+0.21): not overly bright
+## Evaluation Notes
 
-3. Neon Skyline by Aria Vale
-   Score: 1.38
-   Why: genre mismatch; mood mismatch; energy similarity (+0.98): close to target 0.90; valence aligned with mood; acousticness bonus (+0.23): not overly bright
+The project was evaluated against a few clearly different preference profiles:
 
-4. Iron Harbor by Stonecrest
-   Score: 1.37
-   Why: genre mismatch; mood mismatch; energy similarity (+0.95): close to target 0.90; valence aligned with mood; acousticness bonus (+0.21): not overly bright
+- High-Energy Pop
+- Chill Lofi
+- Deep Intense Rock
 
-5. Velvet Static by Nyra Lane
-   Score: 1.34
-   Why: genre mismatch; mood mismatch; energy similarity (+0.96): close to target 0.90; valence aligned with mood; acousticness bonus (+0.22): not overly bright
+These tests help confirm that the system responds in a consistent and explainable way to different user tastes. The current recommendation logic is deliberately transparent, which makes it easier to diagnose whether the recommendation pattern is reasonable or unstable.
+
+---
+
+## AI Collaboration Reflection
+
+During development, AI assistance helped structure the recommendation runner and format output in a more readable way. It was especially useful for drafting clean table formatting and speeding up the initial project structure.
+
+A helpful suggestion was to convert the terminal output into a table so the score and explanation were easier to compare. A weaker suggestion was that some of the early output format looked polished even when the underlying logic had not yet been fully validated. That experience reinforced the need to manually verify results rather than trust presentation alone.
+
+The main limitation of the current system is that it depends on a small, handcrafted feature set and a narrow catalog. In future work, the system could be expanded with richer retrieval, more diverse input filtering, or a larger evaluation harness to improve trustworthiness and realism.
 
 
 Profile: Adversarial Conflicting Preferences
